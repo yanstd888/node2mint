@@ -27,6 +27,10 @@
   <img alt="Docker" src="https://img.shields.io/badge/deployment-Docker%20Compose-2496ED.svg?logo=docker">
 </p>
 
+<p align="center">
+  <img src="./docs/images/landing-hero.png" alt="Node2Mint - Digital Marketplace & AI API Tokens" width="100%" />
+</p>
+
 ---
 
 ## Why Node2Mint?
