@@ -134,23 +134,42 @@ cd node2mint
 ```bash
 cp gateway/.env.example gateway/.env
 cp web/.env.example web/.env.local
+cp -r gateway/.secrets.example gateway/.secrets
 ```
-Update `gateway/.env` with your secure credentials (`JWT_SECRET`, database passwords).
+The example templates contain pre-configured dev credentials. For production, generate unique 32+ character secrets (`JWT_SECRET`, `SECRET_KEY`).
 
 ### 4. Run Development Stack
+
+Start backend services (PostgreSQL, Redis, Go Gateway, Uptime Kuma):
 ```bash
 docker compose up -d --build
 ```
-Verify all services are healthy:
+Verify all containers are healthy:
 ```bash
 docker compose ps
 curl http://localhost:8080/healthz   # Returns "ok"
 ```
 
-Open the web frontend:
-- Web App: `http://localhost:3000`
-- API Gateway: `http://localhost:8080`
-- Default local admin: `admin@test.local` / `Test1234!` (only when seeded with test config)
+Start Next.js frontend (in a separate terminal):
+```bash
+cd web
+npm install
+npm run dev
+```
+
+Access the local services:
+- **Web Marketplace & App**: `http://localhost:3000`
+- **API Gateway**: `http://localhost:8080`
+- **Uptime Kuma Health Dashboard**: `http://localhost:3001`
+
+#### Default Seed Accounts (Local Development Only)
+The local compose setup automatically mounts `gateway/sql/99-local-dev-seed.sql` with two test accounts:
+| Role | Email | Password | Pre-seeded Balance |
+| --- | --- | --- | --- |
+| **Admin** | `admin@test.local` | `Test1234!` | 50,000 IDR |
+| **Seller** | `seller@test.local` | `Test1234!` | 10,000 IDR (Demo Store with 13 products) |
+
+*(Seed accounts are excluded in production deployments).*
 
 ### 5. Automated Verification
 Run the end-to-end money and order validation smoke test:
