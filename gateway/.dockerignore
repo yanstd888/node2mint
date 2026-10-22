@@ -1,0 +1,6 @@
+gateway.exe
+*.exe
+.secrets
+bin
+hash_tmp_main
+testdata

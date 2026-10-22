@@ -1,0 +1,5 @@
+node_modules
+.next
+lh-*.json
+check-*.py
+*.log

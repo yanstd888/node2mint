@@ -1,0 +1,15 @@
+# Override DEV — TIDAK ikut ke produksi (berkas ini dev-only, jangan di-commit
+# ke repo deploy). docker compose otomatis menggabungkan berkas ini.
+#
+# Kenapa ada: docker-compose.yml sengaja memakai default AMAN (rate limit hidup,
+# Redis/Postgres hanya di 127.0.0.1, host internal ditolak untuk monitor).
+# Yang tidak bisa dilakukan default aman adalah hal khas Docker Desktop di
+# Windows: seluruh trafik browser datang sebagai SATU IP bridge (bukan IP
+# pengunjung), jadi rate limit per-IP akan saling menghabiskan jatah saat dev
+# mengetik. Karena itu dev membalik dua nilai itu di sini, bukan di default.
+services:
+  gateway:
+    environment:
+      RATE_LIMIT_DISABLE: 'true'
+      # Monitor dev memang memantau gateway/db dari dalam jaringan Docker.
+      UPTIME_ALLOW_INTERNAL: 'true'

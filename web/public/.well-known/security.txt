@@ -1,0 +1,4 @@
+Contact: mailto:support@node2mint.com
+Expires: 2027-10-03T00:00:00Z
+Preferred-Languages: en, id, zh, ru, ja
+Canonical: https://www.node2mint.com/.well-known/security.txt

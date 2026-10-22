@@ -1,0 +1,42 @@
+{
+  "name": "ai-sell-modern",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 5000 -H 127.0.0.1",
+    "build": "next build",
+    "start": "next start -p 5000",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5.1.0",
+    "@radix-ui/react-icons": "^1.3.0",
+    "@radix-ui/react-slot": "^1.1.2",
+    "axios": "^1.7.9",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.469.0",
+    "next": "16.3.8",
+    "qrcode-generator": "^2.0.4",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-hook-form": "^7.54.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/pg": "^8.11.0",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@typescript-eslint/eslint-plugin": "^8.20.0",
+    "@typescript-eslint/parser": "^8.20.0",
+    "autoprefixer": "^10.4.16",
+    "eslint": "^9.17.0",
+    "eslint-config-next": "16.3.8",
+    "eslint-plugin-react": "^7.37.0",
+    "postcss": "^8.4.32",
+    "tailwind-merge": "^2.6.0",
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.7.3"
+  }
+}

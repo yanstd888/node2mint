@@ -1,0 +1,32 @@
+# Node2Mint
+
+> One account for AI models, token API usage, and a digital marketplace.
+
+Node2Mint provides a multi-model AI API, token packages, a digital-product marketplace, affiliate commissions, and referral rewards.
+
+## Public pages
+- [Overview and model catalog](/)
+- [Token packages and available models](/pricing)
+- [Digital-product marketplace](/market)
+- [Articles](/artikel)
+- [API documentation](/docs)
+- [Guides](/guides)
+- [Frequently asked questions](/faq)
+- [Service status](/status)
+- [Changelog](/changelog)
+- [Terms](/terms)
+- [Privacy](/privacy)
+- [Refund policy](/refund)
+- [Help center](/bantuan)
+
+## API (OpenAI-compatible)
+- [GET /v1/models - OpenAI-compatible model list](https://www.node2mint.com/v1/models)
+- [POST /v1/chat/completions - OpenAI-compatible chat completions](https://www.node2mint.com/v1/chat/completions)
+- [POST /v1/messages - Anthropic-compatible messages](https://www.node2mint.com/v1/messages)
+
+Authentication uses an API key. See /docs for request examples.
+
+## Resources
+- [Documentation](/docs)
+- [Status](/status)
+- [Help center](/bantuan)

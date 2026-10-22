@@ -1,0 +1,56 @@
+# Secrets & env
+.env
+.env.local
+.env.*.local
+deploy/site-allowlist.env
+gateway/.secrets/
+
+# Build / binaries
+gateway/gateway.exe
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Node
+node_modules/
+web/node_modules/
+.pnpm
+.pnpm-store
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Next.js
+web/.next/
+web/out/
+web/lh-*.json
+web/verify-config.json
+web/nul
+gateway/hash_tmp_main/
+deploy/gateway.env
+deploy/backups/
+
+# Go
+/go/
+
+# Generated caches / temp artifacts
+__pycache__/
+*.pyc
+NUL
+*.hermes-tmp.*
+
+# Raw audit evidence stays local; may include auth/PII
+audit/**/evidence/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo

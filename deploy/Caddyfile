@@ -1,0 +1,38 @@
+http://node2mint.com {
+	redir https://www.node2mint.com{uri} permanent
+}
+
+# Lokal/WSL: Cloudflare Tunnel menembak http://localhost:80, tapi Host header
+# yang datang tetap www.node2mint.com. Blok ini membuat uji dari Windows
+# (curl http://localhost/...) tetap sampai ke stack yang sama.
+:80 {
+	@api path /api/* /v1/* /models
+	handle @api {
+		reverse_proxy gateway:8080 {
+			header_up X-Real-IP {http.request.header.Cf-Connecting-IP}
+		}
+	}
+	handle {
+		reverse_proxy web:5000 {
+			header_up X-Real-IP {http.request.header.Cf-Connecting-IP}
+		}
+	}
+}
+
+http://www.node2mint.com {
+	# Auth/API harus langsung ke gateway. Kalau lewat rewrite Next.js, semua
+	# request terlihat berasal dari container web sehingga limiter satu bucket.
+	@api path /api/* /v1/* /models
+	handle @api {
+		reverse_proxy gateway:8080 {
+			# cloudflared memasok IP pengunjung; gateway hanya percaya header ini
+			# dari peer Docker internal (Caddy), lihat handler.RealIP.
+			header_up X-Real-IP {http.request.header.Cf-Connecting-IP}
+		}
+	}
+	handle {
+		reverse_proxy web:5000 {
+			header_up X-Real-IP {http.request.header.Cf-Connecting-IP}
+		}
+	}
+}

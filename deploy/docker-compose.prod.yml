@@ -1,0 +1,109 @@
+name: node2mint
+# MTU 1280 wajib di WSL2: interface eth0 WSL hanya 1280, sedangkan network
+# Docker default 1500. Paket besar (TLS handshake) hilang tanpa error jelas,
+# sehingga egress container tampak timeout. Di VPS non-WSL hapus blok ini.
+networks:
+  default:
+    driver: bridge
+    driver_opts:
+      com.docker.network.driver.mtu: "1280"
+services:
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "127.0.0.1:80:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+    depends_on:
+      web:
+        condition: service_healthy
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ../web
+      args:
+        NEXT_PUBLIC_API_URL: http://gateway:8080
+        NEXT_PUBLIC_SITE_URL: https://www.node2mint.com
+    environment:
+      NODE_ENV: production
+      SITE_IP_ALLOWLIST: ${SITE_IP_ALLOWLIST:-}
+      NEXT_PUBLIC_API_URL: http://gateway:8080
+      NEXT_PUBLIC_SITE_URL: https://www.node2mint.com
+    depends_on:
+      gateway:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:5000/ >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+
+  gateway:
+    build: ../gateway
+    env_file: ./gateway.env
+    entrypoint: ["sh", "-c", "export REDIS_PASSWORD=\"$$(cat /run/secrets/redis_pass)\"; exec /gateway"]
+    secrets: [redis_pass]
+    environment:
+      RATE_LIMIT_DISABLE: "false"
+      NODE_ENV: production
+      SITE_IP_ALLOWLIST: ${SITE_IP_ALLOWLIST:-}
+      UPTIME_ALLOW_INTERNAL: "false"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/healthz || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: aiuser
+      POSTGRES_DB: aisell
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_pass
+    secrets: [db_pass]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ../gateway/sql/schema.sql:/docker-entrypoint-initdb.d/00-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aiuser -d aisell"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: ["sh", "-c", "exec redis-server --requirepass \"$$(cat /run/secrets/redis_pass)\" --appendonly no"]
+    secrets: [redis_pass]
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$$(cat /run/secrets/redis_pass)\" ping | grep -q PONG"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    volumes:
+      - kuma:/app/data
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  kuma:
+
+secrets:
+  db_pass:
+    file: ../gateway/.secrets/DB_PASSWORD
+  redis_pass:
+    file: ../gateway/.secrets/REDIS_PASSWORD
