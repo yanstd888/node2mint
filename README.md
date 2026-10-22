@@ -1,17 +1,18 @@
 <h1 align="center">Node2Mint — AI Sell Modern</h1>
 
 <p align="center">
-  <strong>Self-hosted AI marketplace, token billing engine, and API gateway with atomic balances, provider failover, and affiliate distribution.</strong>
+  <strong>Self-hosted AI marketplace, token billing engine, and OpenAI-compatible API gateway with atomic ledger balances, provider failover, and affiliate distribution.</strong>
 </p>
 
 <p align="center">
-  A full-stack platform built with Next.js 15, Go 1.22, PostgreSQL 16, Redis 7, and Caddy 2 for selling and routing AI model access, digital products, and token packages.
+  A production-ready full-stack platform built with Next.js 15, Go 1.22, PostgreSQL 16, Redis 7, and Caddy 2 for selling digital products, token packs, and routing AI model access.
 </p>
 
 <p align="center">
   <a href="#features">Features</a> ·
   <a href="#architecture">Architecture</a> ·
   <a href="#quick-start">Quick start</a> ·
+  <a href="#api-reference">API reference</a> ·
   <a href="#configuration">Configuration</a> ·
   <a href="#deployment">Deployment</a> ·
   <a href="#safety-and-security">Safety</a> ·
@@ -42,6 +43,7 @@ Running an AI model reselling service or token marketplace requires robust ledge
 - **Hashed credentials**: User API keys are stored exclusively as SHA-256 hashes. Full keys are displayed once upon creation and never stored in plaintext.
 - **Multi-channel payments**: Native support for card/e-wallet gateways (Stripe, DOKU), manual QRIS/bank transfers with verification workflows, and optional TRC-20 USDT settlement.
 - **Growth engine**: Built-in referral system (bonus token grants for inviters and invitees) and affiliate wallet commissions on completed orders.
+- **Complete web templates included**: 50+ responsive pages across customer marketplace, seller dashboard, AI playground/chat, and administrative consoles.
 
 ## Architecture
 
@@ -65,7 +67,7 @@ Running an AI model reselling service or token marketplace requires robust ledge
 ### Directory Structure
 
 ```text
-ai-sell-modern/
+node2mint/
 ├── gateway/              # Go backend gateway (Chi router, pgxpool, redis)
 │   ├── cmd/gateway/      # Application entrypoint
 │   ├── internal/
@@ -79,12 +81,14 @@ ai-sell-modern/
 │   └── .env.example      # Backend environment template
 ├── web/                  # Next.js 15 frontend (Tailwind CSS, shadcn/ui)
 │   ├── app/              # App router (marketplace, dashboard, admin, auth)
-│   ├── components/       # Reusable UI components
-│   ├── lib/              # API clients, i18n dictionaries
+│   ├── components/       # Reusable UI components & layout shells
+│   ├── lib/              # API clients, auth context, i18n dictionaries
 │   └── .env.example      # Frontend environment template
 ├── deploy/               # Production deployment configurations
 │   ├── docker-compose.prod.yml
+│   ├── Caddyfile
 │   └── site-allowlist.env.example
+├── docs/                 # Design system and architecture documentation
 ├── docker-compose.yml    # Development stack orchestration
 └── smoke-test.sh         # End-to-end billing and order regression check
 ```
@@ -95,16 +99,23 @@ ai-sell-modern/
 - **OpenAI-Compatible `/v1/chat/completions`**: Serves upstream models to client applications using standardized schema headers.
 - **Dynamic Token Metering**: Deducts user balances according to model input/output rates, with cached prompt discount calculations.
 - **Fixed-Window Rate Limiting**: Per-IP and per-account request throttling enforced via Redis.
+- **Telegram Notification Gateway**: Real-time alerts via Telegram Bot API for order placements, dispute escalations, and membership verification.
 
 ### Marketplace & Digital Commerce
 - **Storefront & Product Catalog**: Digital prompts, models, datasets, and subscription access packs.
 - **Escrow Settlement**: Buyer funds are held in platform escrow until manual or automated confirmation releases payout to the seller's store wallet.
 - **Order Cancellation & Refunds**: Safe rollback paths with atomic transaction log entries for every money movement.
+- **Seller Store Management**: Product publishing, sales analytics, dispute handling, and withdrawal requests.
 
 ### Affiliate & Referral Program
 - **Referral Rewards**: Automatic token quota grants for new signups and referral code owners.
 - **Affiliate Commission**: Configurable percentage payouts deposited directly into affiliator wallets upon order settlement.
 - **Anti-Fraud Controls**: IP hashing and duplicate signup checks protect referral distributions.
+
+### Frontend & UI/UX
+- **Dual-Mode Shell**: Customer portal with dark mode aesthetics and high-contrast amber admin shell.
+- **Multilingual (i18n)**: Built-in English and Bahasa Indonesia localization dictionaries.
+- **Client-Side Image Optimization**: Browser canvas WebP image compression (<256 KB) before upload.
 
 ## Quick Start
 
@@ -115,8 +126,8 @@ ai-sell-modern/
 
 ### 2. Clone the Repository
 ```bash
-git clone https://github.com/yanstd888/ai-sell-modern.git
-cd ai-sell-modern
+git clone https://github.com/yanstd888/node2mint.git
+cd node2mint
 ```
 
 ### 3. Configure Environments
@@ -147,6 +158,27 @@ Run the end-to-end money and order validation smoke test:
 bash smoke-test.sh
 ```
 
+## API Reference
+
+The gateway exposes REST endpoints and OpenAI-compatible completions:
+
+| Method | Endpoint | Auth | Description |
+| --- | --- | --- | --- |
+| `POST` | `/v1/chat/completions` | Bearer API Key | OpenAI-compatible chat completions with failover |
+| `POST` | `/api/auth/register` | Public / Turnstile | User registration with signup token grants |
+| `POST` | `/api/auth/login` | Public / Turnstile | User authentication returning JWT token |
+| `GET` | `/api/dashboard` | JWT | User profile, quotas, and wallet balance |
+| `GET` | `/api/keys` | JWT | List active API keys (prefix only) |
+| `POST` | `/api/keys` | JWT | Generate new API key (raw secret shown once) |
+| `DELETE` | `/api/keys/{id}` | JWT | Revoke existing API key |
+| `GET` | `/api/market/products` | Public | List published digital goods and access packs |
+| `POST` | `/api/market/orders` | JWT | Place marketplace order with atomic balance escrow |
+| `POST` | `/api/market/orders/{id}/confirm` | JWT | Buyer release of escrow to seller store wallet |
+| `GET` | `/api/packages` | Public | Available token top-up and signup packages |
+| `POST` | `/api/payment/checkout` | JWT | Create payment invoice (Stripe, DOKU, QRIS) |
+| `GET` | `/api/admin/summary` | Admin | High-level platform GMV and user analytics |
+| `POST` | `/api/admin/withdrawal/{id}/decide` | Admin | Approve or reject seller withdrawal with audit log |
+
 ## Configuration
 
 Neutral configuration templates are provided in `.env.example` files:
@@ -157,16 +189,19 @@ Neutral configuration templates are provided in `.env.example` files:
 | `DATABASE_URL` | PostgreSQL connection string | `postgresql://aiuser:***@localhost:5432/aisell` |
 | `REDIS_ADDR` | Redis host and port | `localhost:6379` |
 | `JWT_SECRET` | 32+ character random string for auth tokens | `CHANGE_ME_RANDOM_SECRET` |
+| `SECRET_KEY` | 32+ character random string for data encryption | `CHANGE_ME_ENCRYPTION_KEY` |
 | `PORT` | HTTP listener port | `8080` |
 | `RATE_LIMIT_DISABLE` | Disable rate limiter (local dev only) | `false` |
 | `STRIPE_SECRET_KEY` | Optional Stripe API secret key | (empty) |
 | `DOKU_SANDBOX` | Toggle DOKU payment simulator | `true` |
+| `TELEGRAM_BOT_TOKEN` | Optional bot token for group membership gate | (empty) |
 
 ### Frontend (`web/.env.local`)
 | Variable | Description | Default |
 | --- | --- | --- |
 | `NEXT_PUBLIC_API_URL` | Gateway API URL | `http://localhost:8080` |
 | `NEXT_PUBLIC_DEFAULT_LOCALE` | Default language (`id` or `en`) | `id` |
+| `NEXT_PUBLIC_SITE_NAME` | Branding title | `Node2Mint` |
 
 Never commit `.env` or `.env.local` files to version control.
 
@@ -222,6 +257,7 @@ git diff --check
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Branching guidelines, coding standards, and PR workflows |
 | [SECURITY.md](SECURITY.md) | Vulnerability disclosure policy and reporting contacts |
 | [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | Contributor Covenant v2.1 community standards |
+| [Design System](docs/DESIGN-SYSTEM.md) | Frontend component specs, color palette, and layout rules |
 
 ## Contributing
 
