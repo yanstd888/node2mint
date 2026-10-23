@@ -1,5 +1,7 @@
 <h1 align="center">Node2Mint — AI Sell Modern</h1>
-
+<p align="center">
+  <img src="./docs/images/landing-hero.png" alt="Node2Mint - Digital Marketplace & AI API Tokens" width="100%" />
+</p>
 <p align="center">
   <strong>Self-hosted AI marketplace, token billing engine, and OpenAI-compatible API gateway with atomic ledger balances, provider failover, and affiliate distribution.</strong>
 </p>
@@ -28,9 +30,7 @@
   <img alt="Docker" src="https://img.shields.io/badge/deployment-Docker%20Compose-2496ED.svg?logo=docker">
 </p>
 
-<p align="center">
-  <img src="./docs/images/landing-hero.png" alt="Node2Mint - Digital Marketplace & AI API Tokens" width="100%" />
-</p>
+
 
 ---
 
