@@ -357,6 +357,10 @@ Dirancang khusus untuk menjawab kebutuhan ekosistem bisnis digital modern (baik 
 | [**AICLUB Indonesia (`aiclub.ai.id`)**](https://aiclub.ai.id/) | Official AI tools directory, free `.ai.id` subdomains, and community hub |
 | [**Toko AICLUB (`toko.aiclub.ai.id`)**](https://toko.aiclub.ai.id) | Live digital product & application marketplace |
 
+## Related open source
+
+- [9RouterX](https://github.com/yanstd888/9routerx) — self-hosted single-binary AI router & LLM gateway by the same team.
+
 ---
 
 ## 🤝 Contributing & License
